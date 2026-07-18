@@ -1,161 +1,193 @@
 import streamlit as st
-import joblib
 import pandas as pd
+import joblib
 
-# ==========================
-# Load Trained Model
-# ==========================
-model = joblib.load("house_price_prediction_model.pkl")
+# =====================================================
+# Page Configuration
+# =====================================================
 
-# ==========================
-# Page Config
-# ==========================
 st.set_page_config(
     page_title="House Price Prediction",
     page_icon="🏠",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# ==========================
+# =====================================================
+# Load Model
+# =====================================================
+
+model = joblib.load("house_price_prediction_model.pkl")
+
+# =====================================================
 # Custom CSS
-# ==========================
+# =====================================================
+
 st.markdown("""
-    <style>
-        .main {
-            padding-top: 1rem;
-        }
-        .stButton>button {
-            width: 100%;
-            background-color: #2E7D32;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            padding: 0.6rem 0;
-            border-radius: 10px;
-            border: none;
-            transition: background-color 0.2s ease;
-        }
-        .stButton>button:hover {
-            background-color: #1B5E20;
-            color: white;
-        }
-        .result-card {
-            background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);
-            padding: 2rem;
-            border-radius: 16px;
-            text-align: center;
-            color: white;
-            margin-top: 1.5rem;
-        }
-        .result-card h2 {
-            color: white;
-            margin: 0;
-            font-size: 2.2rem;
-        }
-        .result-card p {
-            margin: 0.3rem 0 0 0;
-            opacity: 0.9;
-        }
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2E7D32;
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-        footer {visibility: hidden;}
-    </style>
+<style>
+.main{
+    background-color:#f5f7fa;
+}
+
+h1{
+    color:#0E76A8;
+    text-align:center;
+}
+
+.prediction-box{
+    background-color:#d4edda;
+    padding:20px;
+    border-radius:10px;
+    border:2px solid #28a745;
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.footer{
+    text-align:center;
+    color:gray;
+    font-size:15px;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# ==========================
+# =====================================================
+# Title
+# =====================================================
+
+st.markdown("<h1>🏠 House Price Prediction</h1>", unsafe_allow_html=True)
+
+st.write(
+    "Predict the estimated selling price of a house using a trained **Machine Learning Linear Regression Model**."
+)
+
+st.divider()
+
+# =====================================================
 # Sidebar
-# ==========================
-with st.sidebar:
-    st.markdown("## 🏠 About")
-    st.write(
-        "This app predicts a house's sale price based on key property "
-        "features using a trained machine learning model."
-    )
-    st.markdown("---")
-    st.markdown("**Model inputs used:**")
-    st.markdown(
-        "- Overall Quality\n"
-        "- Living Area\n"
-        "- Garage Capacity\n"
-        "- Basement Area\n"
-        "- Year Built\n"
-        "- Bathrooms & Bedrooms\n"
-        "- Lot Area"
-    )
-    st.markdown("---")
-    st.caption("Developed by Misbah Bibi ❤️")
+# =====================================================
 
-# ==========================
-# Header
-# ==========================
-st.title("🏠 House Price Prediction")
-st.write("Enter the house details below to get an estimated sale price.")
-st.divider()
+st.sidebar.header("🏠 Enter House Details")
 
-# ==========================
-# User Inputs (organized in columns)
-# ==========================
-st.markdown('<p class="section-title">🏗️ Structure & Quality</p>', unsafe_allow_html=True)
-col1, col2, col3 = st.columns(3)
+overall_quality = st.sidebar.slider(
+    "Overall Quality",
+    1,
+    10,
+    5
+)
+
+gr_liv_area = st.sidebar.number_input(
+    "Ground Living Area (sq ft)",
+    min_value=500,
+    max_value=6000,
+    value=1500
+)
+
+garage_cars = st.sidebar.slider(
+    "Garage Cars",
+    0,
+    5,
+    2
+)
+
+total_bsmt_sf = st.sidebar.number_input(
+    "Basement Area (sq ft)",
+    min_value=0,
+    max_value=4000,
+    value=900
+)
+
+year_built = st.sidebar.number_input(
+    "Year Built",
+    min_value=1900,
+    max_value=2025,
+    value=2005
+)
+
+full_bath = st.sidebar.slider(
+    "Full Bathrooms",
+    0,
+    5,
+    2
+)
+
+bedrooms = st.sidebar.slider(
+    "Bedrooms Above Ground",
+    1,
+    10,
+    3
+)
+
+lot_area = st.sidebar.number_input(
+    "Lot Area (sq ft)",
+    min_value=1000,
+    max_value=30000,
+    value=8000
+)
+
+# =====================================================
+# Display Inputs
+# =====================================================
+
+st.subheader("📋 House Information")
+
+col1, col2 = st.columns(2)
+
 with col1:
-    overall_quality = st.slider("Overall Quality", 1, 10, 5)
+    st.write(f"**Overall Quality:** {overall_quality}")
+    st.write(f"**Ground Living Area:** {gr_liv_area} sq ft")
+    st.write(f"**Garage Cars:** {garage_cars}")
+    st.write(f"**Basement Area:** {total_bsmt_sf} sq ft")
+
 with col2:
-    year_built = st.number_input("Year Built", min_value=1900, max_value=2025, value=2005)
-with col3:
-    garage_cars = st.slider("Garage Capacity (Cars)", 0, 5, 2)
-
-st.markdown('<p class="section-title">📐 Area Details</p>', unsafe_allow_html=True)
-col4, col5, col6 = st.columns(3)
-with col4:
-    gr_liv_area = st.number_input("Ground Living Area (sq ft)", min_value=100, value=1500)
-with col5:
-    total_bsmt_sf = st.number_input("Total Basement Area (sq ft)", min_value=0, value=900)
-with col6:
-    lot_area = st.number_input("Lot Area (sq ft)", min_value=1000, value=8000)
-
-st.markdown('<p class="section-title">🛏️ Rooms</p>', unsafe_allow_html=True)
-col7, col8 = st.columns(2)
-with col7:
-    full_bath = st.slider("Full Bathrooms", 0, 5, 2)
-with col8:
-    bedrooms = st.slider("Bedrooms Above Ground", 1, 10, 3)
+    st.write(f"**Year Built:** {year_built}")
+    st.write(f"**Full Bathrooms:** {full_bath}")
+    st.write(f"**Bedrooms:** {bedrooms}")
+    st.write(f"**Lot Area:** {lot_area} sq ft")
 
 st.divider()
 
-# ==========================
+# =====================================================
 # Prediction
-# ==========================
-predict_col = st.columns([1, 2, 1])[1]
-with predict_col:
-    predict_clicked = st.button("🔮 Predict House Price")
+# =====================================================
 
-if predict_clicked:
-    input_data = pd.DataFrame([{
-        "OverallQual": overall_quality,
-        "GrLivArea": gr_liv_area,
-        "GarageCars": garage_cars,
-        "TotalBsmtSF": total_bsmt_sf,
-        "YearBuilt": year_built,
-        "FullBath": full_bath,
-        "BedroomAbvGr": bedrooms,
-        "LotArea": lot_area
-    }])
+if st.button("🏠 Predict House Price", use_container_width=True):
 
-    with st.spinner("Calculating estimate..."):
-        prediction = model.predict(input_data)
+    input_data = pd.DataFrame({
+        "OverallQual": [overall_quality],
+        "GrLivArea": [gr_liv_area],
+        "GarageCars": [garage_cars],
+        "TotalBsmtSF": [total_bsmt_sf],
+        "YearBuilt": [year_built],
+        "FullBath": [full_bath],
+        "BedroomAbvGr": [bedrooms],
+        "LotArea": [lot_area]
+    })
 
-    st.markdown(f"""
-        <div class="result-card">
-            <p>Estimated Sale Price</p>
-            <h2>${prediction[0]:,.2f}</h2>
+    prediction = model.predict(input_data)
+
+    st.markdown(
+        f"""
+        <div class="prediction-box">
+        💰 Estimated House Price <br><br>
+        ${prediction[0]:,.2f}
         </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
 
 st.divider()
-st.caption("Developed by Misbah Bibi ❤️")
+
+# =====================================================
+# Footer
+# =====================================================
+
+st.markdown(
+    """
+    <div class="footer">
+    Developed with ❤️ by <b>Misbah Bibi</b><br>
+    Machine Learning Project using Python, Scikit-learn & Streamlit
+    </div>
+    """,
+    unsafe_allow_html=True
+)
